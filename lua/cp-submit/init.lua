@@ -1,4 +1,6 @@
-local function submit_code()
+local M = {}
+
+function M.submit_code()
 	local uv = vim.uv or vim.loop
 
 	-- file extension
@@ -10,8 +12,8 @@ local function submit_code()
 	-- join all lines to get code
 	local file_content = table.concat(lines, "\n")
 
-	-- pattern for site
-	local pattern = [[\vhttps?://codeforces\.com/(problemset/problem|contest)/\d+/[A-Z0-9]+]]
+	-- pattern matches any url, rely on handler.js for site validation
+	local pattern = [[\vhttps?://\S+]]
 
 	-- stores site url
 	local site = nil
@@ -57,6 +59,13 @@ local function submit_code()
 		server:accept(client)
 
 		client:read_start(function(read_err, chunk)
+			if read_err then
+				print("Read error: " .. read_err)
+				client:close()
+				server:close()
+				return
+			end
+
 			if chunk and chunk:match("GET") then
 				local response = "HTTP/1.1 200 OK\r\n"
 					.. "Content-Type: application/json\r\n"
@@ -77,10 +86,9 @@ local function submit_code()
 		end)
 	end
 
-	-- 1. Tell the server to start listening in the background
 	server:listen(128, handle_connection)
 
-	local trigger_url = "http://127.0.0.1:" .. port
+	local trigger_url = "ext+cpsubmit://" .. port
 
 	if vim.ui.open then
 		vim.ui.open(trigger_url)
@@ -103,4 +111,4 @@ local function submit_code()
 	end
 end
 
-vim.api.nvim_create_user_command("CPSubmit", submit_code, {})
+return M
