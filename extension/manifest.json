@@ -1,0 +1,37 @@
+{
+  "name": "CP Submit",
+  "description": "A browser extension to auto submit cp problems",
+  "version": "1.0",
+  "manifest_version": 3,
+  "homepage_url": "https://github.com/Vishanth21/cp-submit",
+  "permissions": [
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://codeforces.com/*",
+    "http://127.0.0.1/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://codeforces.com/*/submit*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "ext+cpsubmit",
+      "name": "Handle CP Submit",
+      "uriTemplate": "handler.html?data=%s"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "cp-submit.nvim@bunSamosa"
+    }
+  }
+}
